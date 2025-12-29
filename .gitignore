@@ -1,0 +1,55 @@
+# --- Node / Frontend ---
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.env*.local
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/.turbo/
+
+# --- Python / Backend ---
+backend/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+backend/.env
+backend/.venv/
+backend/env/
+backend/venv/
+backend/ENV/
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+backend/.mypy_cache/
+backend/.ruff_cache/
+
+# --- OS Specific ---
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+
+# --- IDEs / Editors ---
+.vscode/
+.idea/
+*.swp
+*.swo
+.project
+.settings/
+
+# --- User specific / Data ---
+my-app/dkb auszug/
+my-app/dkb_auszug/
+*.csv
+*.xlsx
+backend/example_output.json
+backend/test_logic_standalone.py
+
+# --- Antigravity / Agentic logs ---
+.gemini/
+.agent/
+task.md
+implementation_plan.md
+walkthrough.md
