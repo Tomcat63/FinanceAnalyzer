@@ -1,12 +1,15 @@
-# --- Stage 1: Frontend Build ---
+# Stage 1: Frontend Build
 FROM node:18-alpine AS builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm install
+
+# FIX: Hier wird die Installation erzwungen, auch wenn Versionen (React 18 vs 19) klemmen
+RUN npm install --legacy-peer-deps
+
 COPY frontend/ ./
 RUN npm run build
 
-# --- Stage 2: Final Image ---
+# Stage 2: Final Image
 FROM python:3.11-slim
 WORKDIR /app
 
@@ -24,5 +27,5 @@ COPY --from=builder /app/frontend/out ./frontend/out
 # Port für Railway
 EXPOSE 8080
 
-# Start-Kommando
+# Start-Befehl
 CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8080"]
