@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
@@ -299,6 +300,12 @@ async def chat_with_ai(request: ChatRequest):
             
     except Exception as e:
         return {"error": f"Systemfehler bei der KI-Analyse: {str(e)}"}
+
+# Mount static frontend files
+# This must be at the end so it doesn't catch /api routes
+frontend_path = os.path.join(os.path.dirname(__file__), "..", "frontend", "out")
+if os.path.exists(frontend_path):
+    app.mount("/", StaticFiles(directory=frontend_path, html=True), name="static")
 
 if __name__ == "__main__":
     import uvicorn
