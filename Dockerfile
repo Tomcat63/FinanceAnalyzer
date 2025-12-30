@@ -1,15 +1,21 @@
-# Stage 1: Frontend Build
-FROM node:18-alpine AS builder
+# Stage 1: Frontend Build (Node.js 20 nutzen!)
+FROM node:20-alpine AS builder
 WORKDIR /app/frontend
+
+# Umgebungsvariable für statischen Export (falls nötig)
+ENV NEXT_TELEMETRY_DISABLED 1
+
 COPY frontend/package*.json ./
 
-# FIX: Hier wird die Installation erzwungen, auch wenn Versionen (React 18 vs 19) klemmen
+# Fix für den React 19 Konflikt
 RUN npm install --legacy-peer-deps
 
 COPY frontend/ ./
+
+# Build ausführen
 RUN npm run build
 
-# Stage 2: Final Image
+# Stage 2: Final Image (Python)
 FROM python:3.11-slim
 WORKDIR /app
 
@@ -20,7 +26,7 @@ RUN mkdir -p frontend/out
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Kopiere Backend-Code und gebautes Frontend
+# Kopiere Backend-Code und das gebaute Frontend aus dem Builder
 COPY backend/ ./backend/
 COPY --from=builder /app/frontend/out ./frontend/out
 
