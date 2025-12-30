@@ -1,15 +1,15 @@
 import type { Config } from "tailwindcss";
 
-const config: Config = {
+const config: any = {
     content: [
         "./src/**/*.{js,ts,jsx,tsx}",
         "./node_modules/@tremor/react/dist/**/*.{js,ts,jsx,tsx}",
     ],
     theme: {
-        transparent: "transparent",
-        current: "currentColor",
         extend: {
             colors: {
+                transparent: "transparent",
+                current: "currentColor",
                 // tremor-preset
                 tremor: {
                     brand: {
