@@ -3,6 +3,14 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import io
 import json
+import os
+import requests
+from dotenv import load_dotenv
+from pydantic import BaseModel
+from typing import List, Dict, Any
+
+# Load environment variables
+load_dotenv()
 
 app = FastAPI(title="Finance Analyzer API")
 
@@ -10,7 +18,6 @@ app = FastAPI(title="Finance Analyzer API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -200,6 +207,98 @@ async def upload_csv(file: UploadFile = File(...)):
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+class ChatRequest(BaseModel):
+    category_summaries: List[Dict[str, Any]]
+    top_transactions: List[Dict[str, Any]]
+
+@app.post("/api/chat")
+async def chat_with_ai(request: ChatRequest):
+    api_key = os.getenv("OPENROUTER_API_KEY")
+    if not api_key:
+        return {"error": "OPENROUTER_API_KEY not found in .env"}
+    
+    # Modelle in Prioritätsreihenfolge
+    models_to_try = [
+        "google/gemini-2.0-flash-exp:free",      # Beste Wahl (Schnell & Intelligent)
+        "google/gemma-3-27b-it:free",           # Top Alternative (Brandneu)
+        "meta-llama/llama-3.3-70b-instruct:free" # Power-Modell (Sehr präzise)
+    ]
+    
+    try:
+        # Prepare context for AI
+        context = "Du bist ein persönlicher Finanzassistent namens 'Finance Analyzer AI'.\n"
+        context += "Analysiere die Finanzdaten des Nutzers und gib eine kurze, knackige Analyse (max. 150-200 Wörter).\n"
+        context += "Antworte IMMER auf DEUTSCH und verwende exakt diese Struktur:\n\n"
+        context += "1. **Zusammenfassung**: Ein kurzer Satz zum Gesamtzustand der Finanzen.\n"
+        context += "2. **Top-Sparpotenzial**: Identifiziere die 2 größten Ausgaben-Kategorien und gib jeweils einen konkreten, praktischen Tipp zum Sparen.\n"
+        context += "3. **Auffälligkeiten**: Erwähne ungewöhnlich hohe Einzelbeträge aus den Top 10 Transaktionen.\n"
+        context += "4. **Motivation**: Ein kurzer, positiver Abschlusssatz.\n\n"
+        context += "Nutze Markdown (Fett, Listen) für eine gute Lesbarkeit. Antworte anschließend kurz auf vietnamesisch.\n\n"
+        
+        context += "### Kategorien-Zusammenfassung:\n"
+        for cat in request.category_summaries:
+            context += f"- {cat['name']}: {cat['amount']:.2f} € ({cat['count']} Transaktionen)\n"
+        
+        context += "\n### Top 10 Einzeltransaktionen (potenzielle Ausreißer):\n"
+        for tx in request.top_transactions:
+            context += f"- {tx['Buchungsdatum']}: {tx['Zahlungsempfänger']} | {tx['Betrag']:.2f} € | {tx['Verwendungszweck']}\n"
+        
+        prompt = "Analysiere diese Daten. Wo gibt es Sparpotential? Gibt es ungewöhnliche hohe Ausgaben? Gib eine kurze, motivierende Zusammenfassung."
+        
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "HTTP-Referer": "http://localhost:3000",
+            "Content-Type": "application/json"
+        }
+        
+        messages = [
+            {"role": "system", "content": context},
+            {"role": "user", "content": prompt}
+        ]
+        
+        for model_id in models_to_try:
+            print(f"Nutze Modell: {model_id}")
+            payload = {
+                "model": model_id,
+                "messages": messages,
+                "max_tokens": 1000,
+                "top_p": 1,
+                "temperature": 0.7
+            }
+            
+            try:
+                response = requests.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers=headers,
+                    json=payload,
+                    timeout=30 # Timeout hinzugefügt
+                )
+                
+                print(f"Antwort-Status für {model_id}: {response.status_code}")
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    ai_content = result['choices'][0]['message']['content']
+                    return {"response": ai_content, "text": ai_content}
+                
+                # Bei 429 (Too Many Requests) oder 5xx (Server Error) -> Nächstes Modell
+                if response.status_code == 429 or response.status_code >= 500:
+                    print(f"Modell {model_id} fehlgeschlagen mit Status {response.status_code}. Versuche Fallback...")
+                    continue
+                else:
+                    # Bei anderen Fehlern (z.B. 401, 400 ohne Fallback-Bedarf) -> Abbruch mit Fehlermeldung
+                    return {"error": f"KI-Anfrage fehlgeschlagen ({model_id}): {response.status_code} - {response.text}"}
+                    
+            except requests.exceptions.RequestException as e:
+                print(f"Netzwerkfehler bei Modell {model_id}: {str(e)}. Versuche Fallback...")
+                continue
+        
+        # Wenn alle Modelle fehlschlagen
+        return {"error": "KI-Server aktuell ausgelastet, bitte kurz warten."}
+            
+    except Exception as e:
+        return {"error": f"Systemfehler bei der KI-Analyse: {str(e)}"}
 
 if __name__ == "__main__":
     import uvicorn

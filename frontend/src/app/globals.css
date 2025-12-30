@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
+@source "../../node_modules/@tremor/react/dist/**/*.{js,ts,jsx,tsx}";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -21,6 +23,14 @@
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
+  --color-blue-500: #3b82f6;
+  --color-indigo-500: #6366f1;
+  --color-emerald-500: #10b981;
+  --color-rose-500: #f43f5e;
+  --color-amber-500: #f59e0b;
+  --color-sky-500: #0ea5e9;
+  --color-violet-500: #8b5cf6;
+  --color-cyan-500: #06b6d4;
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -119,7 +129,23 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+@layer utilities {
+  .fill-blue-500 { fill: #3b82f6 !important; }
+  .fill-indigo-500 { fill: #6366f1 !important; }
+  .fill-emerald-500 { fill: #10b981 !important; }
+  .fill-rose-500 { fill: #f43f5e !important; }
+  .fill-amber-500 { fill: #f59e0b !important; }
+  .fill-sky-500 { fill: #0ea5e9 !important; }
+  .fill-violet-500 { fill: #8b5cf6 !important; }
+  .fill-cyan-500 { fill: #06b6d4 !important; }
+  
+  .stroke-blue-500 { stroke: #3b82f6 !important; }
+  .stroke-indigo-500 { stroke: #6366f1 !important; }
+  .stroke-emerald-500 { stroke: #10b981 !important; }
+  .stroke-rose-500 { stroke: #f43f5e !important; }
 }
