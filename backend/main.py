@@ -212,6 +212,7 @@ def health_check():
 class ChatRequest(BaseModel):
     category_summaries: List[Dict[str, Any]]
     top_transactions: List[Dict[str, Any]]
+    user_prompt: str = None
 
 @app.post("/api/chat")
 async def chat_with_ai(request: ChatRequest):
@@ -245,7 +246,7 @@ async def chat_with_ai(request: ChatRequest):
         for tx in request.top_transactions:
             context += f"- {tx['Buchungsdatum']}: {tx['Zahlungsempfänger']} | {tx['Betrag']:.2f} € | {tx['Verwendungszweck']}\n"
         
-        prompt = "Analysiere diese Daten. Wo gibt es Sparpotential? Gibt es ungewöhnliche hohe Ausgaben? Gib eine kurze, motivierende Zusammenfassung."
+        prompt = request.user_prompt if request.user_prompt else "Analysiere diese Daten. Wo gibt es Sparpotential? Gibt es ungewöhnliche hohe Ausgaben? Gib eine kurze, motivierende Zusammenfassung."
         
         headers = {
             "Authorization": f"Bearer {api_key}",

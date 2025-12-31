@@ -7,9 +7,11 @@ import { useDropzone } from "react-dropzone";
 
 interface UploadZoneProps {
     onUploadSuccess: (data: any) => void;
+    onDemoClick: () => void;
+    isDemoLoading?: boolean;
 }
 
-export function UploadZone({ onUploadSuccess }: UploadZoneProps) {
+export function UploadZone({ onUploadSuccess, onDemoClick, isDemoLoading = false }: UploadZoneProps) {
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -87,6 +89,29 @@ export function UploadZone({ onUploadSuccess }: UploadZoneProps) {
                         <p className="text-sm text-zinc-500 dark:text-zinc-400">
                             Oder klicken, um eine Datei auszuwählen
                         </p>
+                        <div className="pt-6 relative z-10" onClick={(e) => e.stopPropagation()}>
+                            <Button
+                                onClick={onDemoClick}
+                                disabled={isDemoLoading}
+                                variant="outline"
+                                className="relative bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 hover:from-blue-500/20 hover:to-purple-500/20 border-blue-300 dark:border-blue-700 rounded-xl px-6 py-4 flex items-center gap-2 shadow-lg hover:scale-105 transition-all text-blue-600 dark:text-blue-400 font-bold overflow-hidden group"
+                            >
+                                {/* Sparkle effect */}
+                                <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></span>
+
+                                {isDemoLoading ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Demo wird geladen...
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="animate-pulse">✨</span>
+                                        Demo mit Mock-Daten
+                                    </>
+                                )}
+                            </Button>
+                        </div>
                     </div>
                 )}
 

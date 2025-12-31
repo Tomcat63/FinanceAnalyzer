@@ -43,6 +43,24 @@ type CategorySortConfig = {
 // Explizite Farben für Tremor (Strings aus der Tremor-Palette)
 const CHART_COLORS = ["blue", "indigo", "rose", "amber", "emerald", "sky", "violet", "cyan"];
 
+import { useTheme } from "next-themes";
+import { Moon, Sun, Monitor, CheckSquare, Square, Settings as SettingsIcon } from "lucide-react";
+
+// ... (Kategorie Definitionen etc.)
+
+const PREDEFINED_PROMPTS = [
+  "Analysiere meine Shopping-Sucht bei Amazon",
+  "Finde versteckte Abos",
+  "Sparpotential bei Fixkosten berechnen",
+  "Wöchentlicher Ausgaben-Trend",
+  "Vergleich zum Vormonat",
+  "Händler mit den meisten Buchungen",
+  "Steuerlich relevante Posten markieren",
+  "Größte Einzelbuchungen finden",
+  "Gastronomie-Ausgaben summieren",
+  "Anomalie-Erkennung"
+];
+
 export default function DashboardPage() {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [showUpload, setShowUpload] = useState(true);
@@ -54,9 +72,19 @@ export default function DashboardPage() {
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  // New States
+  const [isDemoMode, setIsDemoMode] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
+  const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
+  const [customPrompt, setCustomPrompt] = useState("");
+  const [showSettings, setShowSettings] = useState(false);
+  const { theme, setTheme } = useTheme();
+
   const handleUploadSuccess = (data: { transactions: Transaction[] }) => {
+    setIsDemoMode(false); // Reset demo mode on real upload
     setTransactions(data.transactions);
     setShowUpload(false);
+    // ...
 
     if (data.transactions.length > 0) {
       const dates = data.transactions.map(t => new Date(t.Buchungsdatum));
@@ -167,6 +195,55 @@ export default function DashboardPage() {
     }));
   };
 
+  const handleDemoMode = async () => {
+    setIsDemoLoading(true);
+    try {
+      // Lade Mock-CSV aus dem public-Ordner
+      const res = await fetch("/test_data_mock.csv");
+      if (!res.ok) throw new Error("Mock-Daten konnten nicht geladen werden");
+
+      const csvText = await res.text();
+
+      // Sende CSV an Backend zur Verarbeitung (Upload Simulation)
+      const blob = new Blob([csvText], { type: "text/csv" });
+      const file = new File([blob], "mock_data.csv", { type: "text/csv" });
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch("http://127.0.0.1:8000/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!uploadRes.ok) throw new Error("Backend-Verarbeitung fehlgeschlagen");
+
+      const data = await uploadRes.json();
+      setIsDemoMode(true);
+      setTransactions(data.transactions);
+      setShowUpload(false);
+
+      if (data.transactions.length > 0) {
+        const dates = data.transactions.map((t: Transaction) => new Date(t.Buchungsdatum));
+        setFromDate(new Date(Math.min(...dates.map((d: Date) => d.getTime()))));
+        setToDate(new Date(Math.max(...dates.map((d: Date) => d.getTime()))));
+      }
+    } catch (err) {
+      console.error("Demo Mode Error:", err);
+      alert("Demo-Modus konnte nicht geladen werden. Stelle sicher, dass das Backend läuft.");
+    } finally {
+      setIsDemoLoading(false);
+    }
+  };
+
+  const togglePrompt = (p: string) => {
+    setSelectedPrompts(prev => {
+      const isSelected = prev.includes(p);
+      const next = isSelected ? prev.filter(x => x !== p) : [...prev, p];
+      setCustomPrompt(next.join("\n"));
+      return next;
+    });
+  };
+
   const startAIAnalysis = async () => {
     setIsAnalyzing(true);
     setAiResponse(null);
@@ -176,7 +253,8 @@ export default function DashboardPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           category_summaries: categoryStats,
-          top_transactions: topTenTransactions
+          top_transactions: topTenTransactions,
+          user_prompt: customPrompt || undefined
         })
       });
       const data = await res.json();
@@ -235,15 +313,74 @@ export default function DashboardPage() {
   return (
     <div className="p-4 md:p-8 space-y-8 max-w-[1400px] mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b pb-6 border-zinc-100 dark:border-zinc-800">
-        <div>
-          <h2 className="text-2xl md:text-4xl font-black tracking-tight">Dashboard</h2>
-          <p className="text-zinc-500 text-sm md:text-lg">Präzise Finanzanalyse in Echtzeit.</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <h2 className="text-2xl md:text-4xl font-black tracking-tight flex items-center gap-3">
+              Dashboard
+              {isDemoMode && (
+                <span className="text-[10px] bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-amber-200 dark:border-amber-800 animate-pulse">
+                  Demo-Modus aktiv
+                </span>
+              )}
+            </h2>
+            <p className="text-zinc-500 text-sm md:text-lg">Präzise Finanzanalyse in Echtzeit.</p>
+          </div>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setShowSettings(!showSettings)}
+            className="rounded-xl border-zinc-200 dark:border-zinc-800"
+          >
+            <SettingsIcon size={18} className={showSettings ? "animate-spin" : ""} />
+          </Button>
           <Button variant="outline" onClick={exportToCSV} disabled={transactions.length === 0} className="rounded-xl"><Download size={18} className="mr-2" /> Export</Button>
           <Button onClick={() => setShowUpload(true)} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg"><UploadIcon size={18} className="mr-2" /> CSV Upload</Button>
         </div>
       </div>
+
+      {showSettings && (
+        <Card className="bg-white/80 dark:bg-zinc-900/80 backdrop-blur-xl border-zinc-200 dark:border-zinc-800 shadow-2xl rounded-2xl p-6 animate-in slide-in-from-top-4 duration-300">
+          <h3 className="text-sm font-black uppercase tracking-[0.2em] text-zinc-400 mb-4 flex items-center gap-2">
+            <SettingsIcon size={14} /> Einstellungen
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="space-y-3">
+              <label className="text-xs font-bold text-zinc-500 uppercase">Erscheinungsbild</label>
+              <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl">
+                {[
+                  { id: 'light', icon: <Sun size={14} />, label: 'Hell' },
+                  { id: 'dark', icon: <Moon size={14} />, label: 'Dunkel' },
+                  { id: 'system', icon: <Monitor size={14} />, label: 'System' }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setTheme(item.id)}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-bold transition-all ${theme === item.id
+                      ? "bg-white dark:bg-zinc-700 shadow-sm text-blue-600 dark:text-blue-400"
+                      : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                      }`}
+                  >
+                    {item.icon} {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {isDemoMode && (
+              <div className="space-y-3">
+                <label className="text-xs font-bold text-zinc-500 uppercase">Daten-Modus</label>
+                <Button
+                  variant="outline"
+                  onClick={() => { setTransactions([]); setShowUpload(true); setIsDemoMode(false); }}
+                  className="w-full rounded-xl border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-900/10"
+                >
+                  Mock-Daten löschen
+                </Button>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-50">
         <Card className="lg:col-span-8 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-xl border-zinc-200 dark:border-zinc-800 shadow-xl rounded-2xl overflow-visible">
@@ -311,7 +448,13 @@ export default function DashboardPage() {
       </div>
 
       {transactions.length === 0 ? (
-        <div className="py-20 flex flex-col items-center justify-center space-y-6"><UploadZone onUploadSuccess={handleUploadSuccess} /></div>
+        <div className="py-20 flex flex-col items-center justify-center space-y-6">
+          <UploadZone
+            onUploadSuccess={handleUploadSuccess}
+            onDemoClick={handleDemoMode}
+            isDemoLoading={isDemoLoading}
+          />
+        </div>
       ) : (
         <div className="space-y-8 mt-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -323,24 +466,56 @@ export default function DashboardPage() {
 
           <div className="grid gap-6 lg:grid-cols-12">
             <Card className="lg:col-span-12 bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md border-zinc-200 dark:border-zinc-800 shadow-xl rounded-2xl p-6">
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Sparkles className="text-blue-500" size={20} /> KI-Analyse & Budget-Check
-                  </CardTitle>
-                  <p className="text-xs text-zinc-500 mt-1">Lass die KI deine Ausgaben prüfen und Sparpotentiale finden.</p>
+              <div className="flex flex-col gap-6 mb-8">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <CardTitle className="flex items-center gap-2 text-2xl">
+                      <Sparkles className="text-blue-500" size={24} /> KI-Analyse & Budget-Check
+                    </CardTitle>
+                    <p className="text-xs text-zinc-500 mt-1 uppercase font-black tracking-widest">Wähle Schwerpunkte für deine individuelle Analyse</p>
+                  </div>
+                  <Button
+                    onClick={startAIAnalysis}
+                    disabled={isAnalyzing || transactions.length === 0}
+                    size="lg"
+                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-xl hover:scale-105 transition-all h-14 px-8"
+                  >
+                    {isAnalyzing ? (
+                      <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> KI analysiert...</>
+                    ) : (
+                      <><Sparkles size={20} className="mr-2" /> KI Analyse starten</>
+                    )}
+                  </Button>
                 </div>
-                <Button
-                  onClick={startAIAnalysis}
-                  disabled={isAnalyzing || transactions.length === 0}
-                  className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg"
-                >
-                  {isAnalyzing ? (
-                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> KI analysiert...</>
-                  ) : (
-                    <><Sparkles size={16} className="mr-2" /> KI Analyse starten</>
-                  )}
-                </Button>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
+                  {PREDEFINED_PROMPTS.map((p) => {
+                    const isSelected = selectedPrompts.includes(p);
+                    return (
+                      <button
+                        key={p}
+                        onClick={() => togglePrompt(p)}
+                        className={`flex items-center gap-2 p-3 rounded-xl border text-left transition-all ${isSelected
+                          ? "bg-blue-500/10 border-blue-500 text-blue-600 dark:text-blue-400 font-bold shadow-sm"
+                          : "bg-white/50 dark:bg-zinc-800/50 border-zinc-100 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300"
+                          }`}
+                      >
+                        {isSelected ? <CheckSquare size={16} /> : <Square size={16} className="opacity-30" />}
+                        <span className="text-[11px] leading-tight">{p}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Finaler Analyse-Prompt (kombiniert)</label>
+                  <textarea
+                    value={customPrompt}
+                    onChange={(e) => setCustomPrompt(e.target.value)}
+                    placeholder="Wähle oben Optionen aus oder gib hier deine eigenen Fragen ein..."
+                    className="w-full h-32 bg-zinc-50/50 dark:bg-zinc-950/50 border border-zinc-100 dark:border-zinc-800 rounded-2xl p-4 text-sm font-medium focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+                  />
+                </div>
               </div>
 
               {aiResponse && (
