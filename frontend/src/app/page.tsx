@@ -235,9 +235,9 @@ export default function DashboardPage() {
         setFromDate(new Date(Math.min(...dates.map((d: Date) => d.getTime()))));
         setToDate(new Date(Math.max(...dates.map((d: Date) => d.getTime()))));
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Demo Mode Error:", err);
-      alert("Demo-Modus konnte nicht geladen werden. Stelle sicher, dass das Backend läuft.");
+      alert(`Demo-Modus konnte nicht geladen werden: ${err.message || "Stelle sicher, dass das Backend läuft."}`);
     } finally {
       setIsDemoLoading(false);
     }

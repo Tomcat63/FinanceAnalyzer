@@ -5,6 +5,7 @@
 .env.production.local
 __pycache__/
 *.csv
+!backend/test_data_mock.csv
 
 # --- Node / Frontend ---
 frontend/node_modules/
@@ -61,3 +62,8 @@ backend/test_logic_standalone.py
 task.md
 implementation_plan.md
 walkthrough.md
+
+# Allow only this specific CSV for demo mode
+!backend/test_data_mock.csv
+# Ignore all other CSVs
+*.csv
