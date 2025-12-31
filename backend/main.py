@@ -18,7 +18,13 @@ app = FastAPI(title="Finance Analyzer API")
 # Enable CORS for frontend interaction
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://finance-analyzer-phi.vercel.app", # Adjust if Vercel URL is different
+        "https://financeanalyzer-production.up.railway.app",
+        "*" # Keep wildcard for now to be safe during testing
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )

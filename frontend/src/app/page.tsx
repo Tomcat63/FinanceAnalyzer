@@ -43,10 +43,10 @@ type CategorySortConfig = {
 // Explizite Farben für Tremor (Strings aus der Tremor-Palette)
 const CHART_COLORS = ["blue", "indigo", "rose", "amber", "emerald", "sky", "violet", "cyan"];
 
-// API Base URL - Railway Backend in Production, localhost in Development
-const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+// API Base URL - Prioritize Env Var, then Railway Backend in Production, localhost in Development
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
   ? 'https://financeanalyzer-production.up.railway.app'
-  : '';
+  : 'http://127.0.0.1:8000');
 
 import { useTheme } from "next-themes";
 import { Moon, Sun, Monitor, CheckSquare, Square, Settings as SettingsIcon } from "lucide-react";
@@ -354,7 +354,7 @@ export default function DashboardPage() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="space-y-3">
-              <label className="text-xs font-bold text-zinc-500 uppercase">Erscheinungsbild</label>
+              <label className="text-xs font-bold text-zinc-500 uppercase">Design & Modus</label>
               <div className="flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl">
                 {[
                   { id: 'light', icon: <Sun size={14} />, label: 'Hell' },

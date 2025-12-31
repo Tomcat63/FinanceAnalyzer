@@ -5,10 +5,10 @@ import { Upload, X, FileText, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDropzone } from "react-dropzone";
 
-// API Base URL - Railway Backend in Production, localhost in Development
-const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+// API Base URL - Prioritize Env Var, then Railway Backend in Production, localhost in Development
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
     ? 'https://financeanalyzer-production.up.railway.app'
-    : '';
+    : 'http://127.0.0.1:8000');
 
 interface UploadZoneProps {
     onUploadSuccess: (data: any) => void;
