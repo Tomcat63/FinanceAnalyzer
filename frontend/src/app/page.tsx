@@ -43,6 +43,11 @@ type CategorySortConfig = {
 // Explizite Farben für Tremor (Strings aus der Tremor-Palette)
 const CHART_COLORS = ["blue", "indigo", "rose", "amber", "emerald", "sky", "violet", "cyan"];
 
+// API Base URL - Railway Backend in Production, localhost in Development
+const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+  ? 'https://financeanalyzer-production.up.railway.app'
+  : '';
+
 import { useTheme } from "next-themes";
 import { Moon, Sun, Monitor, CheckSquare, Square, Settings as SettingsIcon } from "lucide-react";
 
@@ -199,7 +204,7 @@ export default function DashboardPage() {
     setIsDemoLoading(true);
     try {
       // Lade Mock-CSV vom Backend-Endpunkt (funktioniert auf Vercel)
-      const res = await fetch("/api/demo-data");
+      const res = await fetch(`${API_BASE_URL}/api/demo-data`);
       if (!res.ok) throw new Error("Mock-Daten konnten nicht geladen werden");
 
       const data = await res.json();
@@ -213,7 +218,7 @@ export default function DashboardPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const uploadRes = await fetch("/upload", {
+      const uploadRes = await fetch(`${API_BASE_URL}/upload`, {
         method: "POST",
         body: formData,
       });
@@ -251,7 +256,7 @@ export default function DashboardPage() {
     setIsAnalyzing(true);
     setAiResponse(null);
     try {
-      const res = await fetch("/api/chat", {
+      const res = await fetch(`${API_BASE_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

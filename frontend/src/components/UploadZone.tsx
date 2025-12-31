@@ -5,6 +5,11 @@ import { Upload, X, FileText, CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useDropzone } from "react-dropzone";
 
+// API Base URL - Railway Backend in Production, localhost in Development
+const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? 'https://financeanalyzer-production.up.railway.app'
+    : '';
+
 interface UploadZoneProps {
     onUploadSuccess: (data: any) => void;
     onDemoClick: () => void;
@@ -41,7 +46,7 @@ export function UploadZone({ onUploadSuccess, onDemoClick, isDemoLoading = false
         formData.append("file", file);
 
         try {
-            const response = await fetch("/upload", {
+            const response = await fetch(`${API_BASE_URL}/upload`, {
                 method: "POST",
                 body: formData,
             });
