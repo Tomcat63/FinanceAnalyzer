@@ -2,6 +2,9 @@
 deployed
 https://vercel.com/tomcat63s-projects, 
 
+# Deployment Details
+https://vercel.com/tomcat63s-projects/finance-analyzer/J8rN5beYuu94pxzTSQcUyoinbv9d
+
 Ap free for 1 month
 https://financeanalyzer-production.up.railway.app/
 

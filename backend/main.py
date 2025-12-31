@@ -209,6 +209,21 @@ async def upload_csv(file: UploadFile = File(...)):
 def health_check():
     return {"status": "ok"}
 
+@app.get("/api/demo-data")
+def get_demo_data():
+    """Serve the mock CSV data for demo mode"""
+    try:
+        csv_path = os.path.join(os.path.dirname(__file__), "test_data_mock.csv")
+        if not os.path.exists(csv_path):
+            return {"error": "Demo data file not found"}
+        
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            csv_content = f.read()
+        
+        return {"csv_content": csv_content}
+    except Exception as e:
+        return {"error": f"Failed to load demo data: {str(e)}"}
+
 class ChatRequest(BaseModel):
     category_summaries: List[Dict[str, Any]]
     top_transactions: List[Dict[str, Any]]

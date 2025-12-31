@@ -198,11 +198,14 @@ export default function DashboardPage() {
   const handleDemoMode = async () => {
     setIsDemoLoading(true);
     try {
-      // Lade Mock-CSV aus dem public-Ordner
-      const res = await fetch("/test_data_mock.csv");
+      // Lade Mock-CSV vom Backend-Endpunkt (funktioniert auf Vercel)
+      const res = await fetch("/api/demo-data");
       if (!res.ok) throw new Error("Mock-Daten konnten nicht geladen werden");
 
-      const csvText = await res.text();
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      const csvText = data.csv_content;
 
       // Sende CSV an Backend zur Verarbeitung (Upload Simulation)
       const blob = new Blob([csvText], { type: "text/csv" });
@@ -210,20 +213,20 @@ export default function DashboardPage() {
       const formData = new FormData();
       formData.append("file", file);
 
-      const uploadRes = await fetch("http://127.0.0.1:8000/upload", {
+      const uploadRes = await fetch("/upload", {
         method: "POST",
         body: formData,
       });
 
       if (!uploadRes.ok) throw new Error("Backend-Verarbeitung fehlgeschlagen");
 
-      const data = await uploadRes.json();
+      const uploadData = await uploadRes.json();
       setIsDemoMode(true);
-      setTransactions(data.transactions);
+      setTransactions(uploadData.transactions);
       setShowUpload(false);
 
-      if (data.transactions.length > 0) {
-        const dates = data.transactions.map((t: Transaction) => new Date(t.Buchungsdatum));
+      if (uploadData.transactions.length > 0) {
+        const dates = uploadData.transactions.map((t: Transaction) => new Date(t.Buchungsdatum));
         setFromDate(new Date(Math.min(...dates.map((d: Date) => d.getTime()))));
         setToDate(new Date(Math.max(...dates.map((d: Date) => d.getTime()))));
       }
