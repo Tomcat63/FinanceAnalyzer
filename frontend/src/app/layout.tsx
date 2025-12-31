@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="de" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <div className="flex min-h-screen relative overflow-hidden">
             {/* Background elements for glassmorphism */}
             <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
@@ -66,8 +66,8 @@ export default function RootLayout({
 function NavItem({ icon, label, active = false }: { icon: React.ReactNode; label: string; active?: boolean }) {
   return (
     <div className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-all ${active
-        ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium"
-        : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100"
+      ? "bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium"
+      : "text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800/50 hover:text-zinc-900 dark:hover:text-zinc-100"
       }`}>
       {icon}
       <span>{label}</span>
