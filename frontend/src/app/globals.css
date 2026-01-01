@@ -134,18 +134,69 @@
     @apply bg-background text-foreground;
   }
 }
+
 @layer utilities {
-  .fill-blue-500 { fill: #3b82f6 !important; }
-  .fill-indigo-500 { fill: #6366f1 !important; }
-  .fill-emerald-500 { fill: #10b981 !important; }
-  .fill-rose-500 { fill: #f43f5e !important; }
-  .fill-amber-500 { fill: #f59e0b !important; }
-  .fill-sky-500 { fill: #0ea5e9 !important; }
-  .fill-violet-500 { fill: #8b5cf6 !important; }
-  .fill-cyan-500 { fill: #06b6d4 !important; }
-  
-  .stroke-blue-500 { stroke: #3b82f6 !important; }
-  .stroke-indigo-500 { stroke: #6366f1 !important; }
-  .stroke-emerald-500 { stroke: #10b981 !important; }
-  .stroke-rose-500 { stroke: #f43f5e !important; }
+  .fill-blue-500 {
+    fill: #3b82f6 !important;
+  }
+
+  .fill-indigo-500 {
+    fill: #6366f1 !important;
+  }
+
+  .fill-emerald-500 {
+    fill: #10b981 !important;
+  }
+
+  .fill-rose-500 {
+    fill: #f43f5e !important;
+  }
+
+  .fill-amber-500 {
+    fill: #f59e0b !important;
+  }
+
+  .fill-sky-500 {
+    fill: #0ea5e9 !important;
+  }
+
+  .fill-violet-500 {
+    fill: #8b5cf6 !important;
+  }
+
+  .fill-cyan-500 {
+    fill: #06b6d4 !important;
+  }
+
+  .stroke-blue-500 {
+    stroke: #3b82f6 !important;
+  }
+
+  .stroke-indigo-500 {
+    stroke: #6366f1 !important;
+  }
+
+  .stroke-emerald-500 {
+    stroke: #10b981 !important;
+  }
+
+  .stroke-rose-500 {
+    stroke: #f43f5e !important;
+  }
+}
+
+/* Professional UI Cleanup - Verstecke Next.js Debug-Overlays */
+nextjs-portal {
+  display: none !important;
+}
+
+#__next-build-watcher {
+  display: none !important;
+}
+
+/* Verstecke alle Next.js Development Indicators */
+[data-nextjs-dialog-overlay],
+[data-nextjs-toast],
+[data-nextjs-scroll-focus-boundary] {
+  display: none !important;
 }

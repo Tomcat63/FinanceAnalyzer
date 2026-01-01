@@ -5,6 +5,10 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  // Verschiebe Next.js Dev-Overlays aus dem Weg
+  devIndicators: {
+    position: 'top-right',
+  },
   // Füge diese beiden Blöcke hinzu, um den Build zu erzwingen:
   eslint: {
     ignoreDuringBuilds: true,
