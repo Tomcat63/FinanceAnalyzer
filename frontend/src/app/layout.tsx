@@ -46,7 +46,7 @@ export default function RootLayout({
                 </div>
 
                 {/* Footer */}
-                <footer className="p-6 border-t border-zinc-200 dark:border-zinc-800 text-center shrink-0">
+                <footer className="p-6 text-center shrink-0">
                   <p className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
                     v{version} | Build: {process.env.NEXT_PUBLIC_BUILD_ID || "Development-Build"}
                   </p>

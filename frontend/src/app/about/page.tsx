@@ -2,7 +2,7 @@
 
 import React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Info, ShieldCheck, Clock, Github } from "lucide-react"
+import { Info, ShieldCheck, Clock } from "lucide-react"
 import { version } from "../../../package.json"
 
 export default function AboutPage() {
@@ -70,11 +70,6 @@ export default function AboutPage() {
                         Railway Build Command: export NEXT_PUBLIC_BUILD_ID=$(date +'%Y%m%d.%H%M') && npm run build
                     */}
 
-                    <div className="pt-4 border-t border-zinc-100 dark:border-zinc-800 flex justify-center gap-4">
-                        <a href="https://github.com" target="_blank" rel="noreferrer" className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors">
-                            <Github size={20} />
-                        </a>
-                    </div>
                 </CardContent>
             </Card>
         </div>

@@ -21,6 +21,8 @@ interface TransactionContextType {
     setAccountBalance: (balance: { value: number; label: string } | null) => void;
     balanceHistory: any[];
     setBalanceHistory: (history: any[]) => void;
+    isDemoMode: boolean;
+    setIsDemoMode: (isDemo: boolean) => void;
     clearAll: () => void;
 }
 
@@ -31,12 +33,14 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     const [showUpload, setShowUpload] = useState(true);
     const [accountBalance, setAccountBalance] = useState<{ value: number; label: string } | null>(null);
     const [balanceHistory, setBalanceHistory] = useState<any[]>([]);
+    const [isDemoMode, setIsDemoMode] = useState(false);
 
     const clearAll = () => {
         setTransactions([]);
         setShowUpload(true);
         setAccountBalance(null);
         setBalanceHistory([]);
+        setIsDemoMode(false);
     };
 
     return (
@@ -49,6 +53,8 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
             setAccountBalance,
             balanceHistory,
             setBalanceHistory,
+            isDemoMode,
+            setIsDemoMode,
             clearAll
         }}>
             {children}

@@ -137,7 +137,7 @@ export default function AnalysePage() {
         <div className="p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
             <header className="space-y-2">
                 <h1 className="text-4xl font-black tracking-tight bg-gradient-to-r from-blue-600 to-emerald-600 bg-clip-text text-transparent">
-                    Finanzberatung
+                    Fixkosten-Analyse
                 </h1>
                 <p className="text-zinc-500 font-medium">
                     Detaillierte Analyse Ihrer Fixkosten und finanziellen Gesundheit basierend auf der 50-30-20 Regel.

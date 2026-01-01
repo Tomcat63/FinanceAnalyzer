@@ -72,7 +72,9 @@ export default function DashboardPage() {
     transactions, setTransactions,
     showUpload, setShowUpload,
     accountBalance, setAccountBalance,
-    balanceHistory, setBalanceHistory
+    balanceHistory, setBalanceHistory,
+    isDemoMode, setIsDemoMode,
+    clearAll
   } = useTransactions();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,7 +86,6 @@ export default function DashboardPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // New States
-  const [isDemoMode, setIsDemoMode] = useState(false);
   const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
   const [customPrompt, setCustomPrompt] = useState("");
