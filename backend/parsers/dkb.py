@@ -1,7 +1,7 @@
 import pandas as pd
 import io
 from .base import BaseParser, InternalTransaction
-from typing import List
+from typing import List, Optional
 
 class DKBParser(BaseParser):
     @property

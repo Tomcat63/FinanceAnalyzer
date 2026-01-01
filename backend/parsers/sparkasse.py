@@ -1,6 +1,6 @@
 import pandas as pd
 import io
-from typing import List
+from typing import List, Optional
 from .base import BaseParser, InternalTransaction
 
 class SparkasseParser(BaseParser):
