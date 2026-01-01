@@ -5,7 +5,7 @@
   "scripts": {
     "clean-dev": "npx kill-port 3000 && next dev",
     "dev": "next dev",
-    "build": "next build",
+    "build": "export NEXT_PUBLIC_BUILD_ID=$(date +'%Y%m%d.%H%M') && next build",
     "start": "next start"
   },
   "dependencies": {

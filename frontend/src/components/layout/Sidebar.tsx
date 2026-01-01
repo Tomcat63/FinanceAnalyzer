@@ -3,10 +3,14 @@
 import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, Info, Receipt, PieChart, ShoppingCart, Settings, User, Wallet, TrendingUp } from "lucide-react";
+import { useTransactions } from "@/context/TransactionContext";
 
 export function Sidebar() {
     const pathname = usePathname();
     const router = useRouter();
+
+    const { transactions } = useTransactions();
+    const hasData = transactions.length > 0;
 
     const navigate = (path: string) => {
         router.push(path);
@@ -34,18 +38,23 @@ export function Sidebar() {
                     active={pathname === "/"}
                     onClick={() => navigate("/")}
                 />
-                <NavItem
-                    icon={<TrendingUp size={20} />}
-                    label="Kontostand"
-                    active={pathname === "/kontostand"}
-                    onClick={() => navigate("/kontostand")}
-                />
-                <NavItem
-                    icon={<PieChart size={20} />}
-                    label="Finanzberatung"
-                    active={pathname === "/analyse"}
-                    onClick={() => navigate("/analyse")}
-                />
+
+                {hasData && (
+                    <>
+                        <NavItem
+                            icon={<TrendingUp size={20} />}
+                            label="Kontostand"
+                            active={pathname === "/kontostand"}
+                            onClick={() => navigate("/kontostand")}
+                        />
+                        <NavItem
+                            icon={<PieChart size={20} />}
+                            label="Finanzberatung"
+                            active={pathname === "/analyse"}
+                            onClick={() => navigate("/analyse")}
+                        />
+                    </>
+                )}
             </nav>
             <div className="p-4 space-y-1 shrink-0">
                 <NavItem

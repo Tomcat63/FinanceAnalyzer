@@ -74,6 +74,7 @@ export default function DashboardPage() {
     accountBalance, setAccountBalance,
     balanceHistory, setBalanceHistory,
     isDemoMode, setIsDemoMode,
+    status, setStatus,
     clearAll
   } = useTransactions();
 
@@ -100,6 +101,7 @@ export default function DashboardPage() {
     setIsDemoMode(false); // Reset demo mode on real upload
     setTransactions(data.transactions);
     setShowUpload(false);
+    setStatus('READY');
 
     if (data.metadata?.balance !== undefined) {
       setAccountBalance({

@@ -31,6 +31,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useTransactions } from "@/context/TransactionContext";
 
 interface MetricValue {
     amount: number;
@@ -76,14 +77,17 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'unde
     : 'http://127.0.0.1:8000');
 
 export default function AnalysePage() {
+    const { status } = useTransactions();
     const [metrics, setMetrics] = useState<FinancialMetrics | null>(null);
     const [breakdown, setBreakdown] = useState<CategoryBreakdown[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        fetchMetrics();
-    }, []);
+        if (status === 'READY') {
+            fetchMetrics();
+        }
+    }, [status]);
 
     const fetchMetrics = async () => {
         try {
@@ -101,6 +105,8 @@ export default function AnalysePage() {
             setLoading(false);
         }
     };
+
+    if (status !== 'READY') return null;
 
     if (loading) {
         return (
@@ -123,6 +129,7 @@ export default function AnalysePage() {
             </div>
         );
     }
+
 
     // Calculate Fixed Cost Health Color
     const fixedPerc = metrics?.needs.percentage || 0;

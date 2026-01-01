@@ -12,7 +12,11 @@ interface Transaction {
     Fixkosten: boolean;
 }
 
+export type TransactionStatus = 'IDLE' | 'LOADING' | 'READY' | 'ERROR';
+
 interface TransactionContextType {
+    status: TransactionStatus;
+    setStatus: (status: TransactionStatus) => void;
     transactions: Transaction[];
     setTransactions: (txs: Transaction[]) => void;
     showUpload: boolean;
@@ -29,6 +33,7 @@ interface TransactionContextType {
 const TransactionContext = createContext<TransactionContextType | undefined>(undefined);
 
 export function TransactionProvider({ children }: { children: ReactNode }) {
+    const [status, setStatus] = useState<TransactionStatus>('IDLE');
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [showUpload, setShowUpload] = useState(true);
     const [accountBalance, setAccountBalance] = useState<{ value: number; label: string } | null>(null);
@@ -36,6 +41,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     const [isDemoMode, setIsDemoMode] = useState(false);
 
     const clearAll = () => {
+        setStatus('IDLE');
         setTransactions([]);
         setShowUpload(true);
         setAccountBalance(null);
@@ -45,6 +51,8 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
 
     return (
         <TransactionContext.Provider value={{
+            status,
+            setStatus,
             transactions,
             setTransactions,
             showUpload,

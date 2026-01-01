@@ -4,7 +4,9 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TransactionProvider } from "@/context/TransactionContext";
+import { NavigationGuard } from "@/components/layout/NavigationGuard";
 import { version } from "../../package.json";
+import { BuildInfoTag } from "@/components/layout/BuildInfoTag";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,28 +33,25 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <TransactionProvider>
-            <div className="flex h-screen relative overflow-hidden">
-              {/* Background elements for glassmorphism */}
-              <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
-              <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
+            <NavigationGuard>
+              <div className="flex h-screen relative overflow-hidden">
+                {/* Background elements for glassmorphism */}
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-              {/* Sidebar */}
-              <Sidebar />
+                {/* Sidebar */}
+                <Sidebar />
 
-              {/* Main Content */}
-              <main className="flex-1 min-h-0 overflow-y-auto z-0 flex flex-col">
-                <div className="flex-1 min-h-0">
-                  {children}
-                </div>
+                {/* Main Content */}
+                <main className="flex-1 min-h-0 overflow-y-auto z-0 flex flex-col">
+                  <div className="flex-1 min-h-0">
+                    {children}
+                  </div>
 
-                {/* Footer */}
-                <footer className="p-6 text-center shrink-0">
-                  <p className="text-[10px] font-medium text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
-                    v{version} | Build: {process.env.NEXT_PUBLIC_BUILD_ID || "Development-Build"}
-                  </p>
-                </footer>
-              </main>
-            </div>
+                  <BuildInfoTag />
+                </main>
+              </div>
+            </NavigationGuard>
           </TransactionProvider>
         </ThemeProvider>
       </body>

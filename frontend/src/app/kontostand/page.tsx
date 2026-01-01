@@ -7,21 +7,12 @@ import { AreaChart, Text, Metric } from "@tremor/react";
 import { useTransactions } from "@/context/TransactionContext";
 
 export default function KontostandPage() {
-    const { balanceHistory, accountBalance } = useTransactions();
+    const { balanceHistory, accountBalance, status } = useTransactions();
 
-    if (!balanceHistory || balanceHistory.length === 0) {
-        return (
-            <div className="p-8 max-w-4xl mx-auto space-y-6">
-                <Card className="bg-blue-500/10 border-blue-500/20 p-8 text-center rounded-3xl backdrop-blur-xl">
-                    <div className="flex justify-center mb-4">
-                        <AlertCircle size={48} className="text-blue-500" />
-                    </div>
-                    <h2 className="text-2xl font-black mb-2">Keine Daten verfügbar</h2>
-                    <p className="text-zinc-500 mb-6">Bitte laden Sie zuerst Ihre Transaktionsdaten im Dashboard hoch.</p>
-                </Card>
-            </div>
-        );
+    if (status !== 'READY' || !balanceHistory || balanceHistory.length === 0) {
+        return null; // NavigationGuard handles the redirect
     }
+
 
     return (
         <div className="p-8 max-w-6xl mx-auto space-y-8 animate-in fade-in duration-700">
@@ -74,7 +65,7 @@ export default function KontostandPage() {
                 <div className="flex items-center gap-2 px-4 py-2 bg-zinc-100 dark:bg-zinc-800/50 rounded-full border border-zinc-200 dark:border-zinc-800">
                     <Info size={14} className="text-zinc-400" />
                     <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                        Zeitraum: {balanceHistory[0].date} bis {balanceHistory[balanceHistory.length - 1].date}
+                        Zeitraum: {balanceHistory?.[0]?.date || "N/A"} bis {balanceHistory?.[balanceHistory.length - 1]?.date || "N/A"}
                     </span>
                 </div>
             </footer>
