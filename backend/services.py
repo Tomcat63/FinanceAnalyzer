@@ -16,7 +16,10 @@ CATEGORIES = {
     "Bank/Finanzen": ["Zinsen", "Dividende", "Depot", "Trade Republic", "Scalable", "DKB", "Sparkasse", "Volksbank"],
 }
 
-from logic.detector import FixedCostDetector, FixedCostCategory
+try:
+    from .logic.detector import FixedCostDetector, FixedCostCategory
+except ImportError:
+    from logic.detector import FixedCostDetector, FixedCostCategory
 
 # Global instance for consistent detection
 detector = FixedCostDetector()

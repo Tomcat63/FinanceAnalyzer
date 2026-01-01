@@ -1,24 +1,39 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-import pandas as pd
-import io
-import os
-from dotenv import load_dotenv
-from pydantic import BaseModel
-from typing import List, Dict, Any
+import sys
+import logging
 
-from memory_store import store
-from parsers.factory import ParserFactory
-from services import (
-    categorize_transaction, 
-    detect_recurring_patterns, 
-    is_fixed_cost, 
-    analyze_with_ai,
-    calculate_balance_history,
-    calculate_50_30_20_metrics,
-    detector
-)
+# Configure basic logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+# Diagnostic Logging for DevOps/Railway
+logger.info(f"Current Working Directory: {os.getcwd()}")
+logger.info(f"Python Path: {sys.path}")
+
+try:
+    from .memory_store import store
+    from .parsers.factory import ParserFactory
+    from .services import (
+        categorize_transaction, 
+        detect_recurring_patterns, 
+        is_fixed_cost, 
+        analyze_with_ai,
+        calculate_balance_history,
+        calculate_50_30_20_metrics,
+        detector
+    )
+except ImportError:
+    # Fallback for local execution if not run as a package
+    from memory_store import store
+    from parsers.factory import ParserFactory
+    from services import (
+        categorize_transaction, 
+        detect_recurring_patterns, 
+        is_fixed_cost, 
+        analyze_with_ai,
+        calculate_balance_history,
+        calculate_50_30_20_metrics,
+        detector
+    )
 
 # Load environment variables
 load_dotenv()
