@@ -50,6 +50,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || (typeof window !== 'unde
 
 import { useTheme } from "next-themes";
 import { Moon, Sun, Monitor, CheckSquare, Square, Settings as SettingsIcon } from "lucide-react";
+import { useTransactions } from "@/context/TransactionContext";
 
 // ... (Kategorie Definitionen etc.)
 
@@ -67,8 +68,13 @@ const PREDEFINED_PROMPTS = [
 ];
 
 export default function DashboardPage() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [showUpload, setShowUpload] = useState(true);
+  const {
+    transactions, setTransactions,
+    showUpload, setShowUpload,
+    accountBalance, setAccountBalance,
+    balanceHistory, setBalanceHistory
+  } = useTransactions();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
   const [toDate, setToDate] = useState<Date | undefined>(undefined);
@@ -78,8 +84,6 @@ export default function DashboardPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // New States
-  const [accountBalance, setAccountBalance] = useState<{ value: number; label: string } | null>(null);
-  const [balanceHistory, setBalanceHistory] = useState<any[]>([]);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);

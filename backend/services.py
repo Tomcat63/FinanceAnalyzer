@@ -16,6 +16,11 @@ CATEGORIES = {
     "Bank/Finanzen": ["Zinsen", "Dividende", "Depot", "Trade Republic", "Scalable", "DKB", "Sparkasse", "Volksbank"],
 }
 
+from logic.detector import FixedCostDetector, FixedCostCategory
+
+# Global instance for consistent detection
+detector = FixedCostDetector()
+
 def detect_recurring_patterns(df: pd.DataFrame) -> pd.DataFrame:
     """Detect recurring transactions based on frequency and amount."""
     if df.empty:
@@ -51,23 +56,82 @@ def detect_recurring_patterns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def is_fixed_cost(row: pd.Series) -> bool:
-    """Simple heuristic for fixed costs combined with frequency detection."""
-    
-    fixed_keywords = ["miete", "dauerauftrag", "versicherung", "abo", "netflix", "spotify", "rundfunk", "beitrag", "gehalt"]
-    text = f"{str(row['Zahlungsempfänger']).lower()} {str(row['Verwendungszweck']).lower()}"
-    
-    # Keyword match
-    keyword_match = any(kw in text for kw in fixed_keywords)
-    
-    # If it was detected as recurring by frequency or matches keywords
-    return keyword_match or row.get('Wiederkehrend', False)
+    """Replacement for the old heuristic with the new robust detector."""
+    _, confidence, _ = detector.detect(
+        recipient=row.get('Zahlungsempfänger', ''),
+        purpose=row.get('Verwendungszweck', ''),
+        amount=row.get('Betrag', 0.0),
+        is_recurring=row.get('Wiederkehrend', False)
+    )
+    return confidence >= 0.5
 
 def categorize_transaction(row: pd.Series) -> str:
+    """Categorization with fallback to the old CATEGORIES or the new FixedCostCategory."""
+    # Try the new detector first (specialized in fixed costs)
+    cat, confidence, _ = detector.detect(
+        recipient=row.get('Zahlungsempfänger', ''),
+        purpose=row.get('Verwendungszweck', ''),
+        amount=row.get('Betrag', 0.0),
+        is_recurring=row.get('Wiederkehrend', False)
+    )
+    
+    if cat != FixedCostCategory.NONE and confidence >= 0.4:
+        return cat.value
+
+    # Fallback to legacy categorization for non-fixed costs
     text = f"{str(row['Zahlungsempfänger']).lower()} {str(row['Verwendungszweck']).lower()}"
     for category, keywords in CATEGORIES.items():
         if any(keyword.lower() in text for keyword in keywords):
             return category
     return "Sonstiges"
+
+def calculate_50_30_20_metrics(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Calculates 50-30-20 metrics:
+    - Needs (Fixkosten): Targets 50%
+    - Wants (Variables): Targets 30%
+    - Savings/Debt (Sparquote): Targets 20%
+    """
+    if df.empty:
+        return {}
+
+    # Total Income (positive amounts, excluding internal transfers if possible)
+    # Filter for 'Gehalt' category or generally positive amounts
+    total_income = abs(df[df['Betrag'] > 0]['Betrag'].sum())
+    
+    # If no income detected, we can't calculate ratios correctly
+    if total_income == 0:
+        return {"error": "Keine Einnahmen erkannt für 50-30-20 Analyse"}
+
+    # Fixkosten (Needs)
+    fix_mask = df['Fixkosten'] == True
+    total_fixed = abs(df[fix_mask & (df['Betrag'] < 0)]['Betrag'].sum())
+
+    # Discretionary (Wants)
+    # All other expenses that are not fixed
+    total_discretionary = abs(df[~fix_mask & (df['Betrag'] < 0)]['Betrag'].sum())
+
+    # Savings / Surplus
+    total_savings = total_income - total_fixed - total_discretionary
+
+    return {
+        "income": round(total_income, 2),
+        "needs": {
+            "amount": round(total_fixed, 2),
+            "percentage": round((total_fixed / total_income) * 100, 1),
+            "target": 50.0
+        },
+        "wants": {
+            "amount": round(total_discretionary, 2),
+            "percentage": round((total_discretionary / total_income) * 100, 1),
+            "target": 30.0
+        },
+        "savings": {
+            "amount": round(max(0, total_savings), 2),
+            "percentage": round((max(0, total_savings) / total_income) * 100, 1),
+            "target": 20.0
+        }
+    }
 
 async def analyze_with_ai(category_summaries: List[Dict[str, Any]], top_transactions: List[Dict[str, Any]], user_prompt: str = None) -> str:
     api_key = os.getenv("OPENROUTER_API_KEY")
