@@ -3,7 +3,7 @@ import random
 from datetime import datetime, timedelta
 
 # Configuration
-target_file = r"c:\Daten\AI Developing\FinanceAnalyzer\my-app\dkb auszug\test_data_mock.csv"
+target_file = r"c:\Daten\AI Developing\FinanceAnalyzer\backend\test_data_mock.csv"
 num_records = 300
 start_date = datetime(2025, 1, 1)
 end_date = datetime.now()
@@ -81,8 +81,17 @@ while len(data) < num_records:
 # Sort by date
 data.sort(key=lambda x: datetime.strptime(x[0], "%d.%m.%Y"), reverse=True)
 
+metadata = [
+    ["Konto:", "Alex DKB Cash"],
+    ["Kontonummer / IBAN:", "DE123456789"],
+    ["Kontostand vom 29.12.2025:", "4.321,50 EUR"],
+    [], # Empty line
+]
+
 with open(target_file, mode='w', encoding='utf-8', newline='') as f:
     writer = csv.writer(f, delimiter=';', quotechar='"', quoting=csv.QUOTE_ALL)
+    for row in metadata:
+        writer.writerow(row)
     writer.writerow(headers)
     writer.writerows(data)
 

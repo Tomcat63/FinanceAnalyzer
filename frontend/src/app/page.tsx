@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, AreaChart } from "@tremor/react";
-import { ArrowUpRight, ArrowDownRight, RefreshCw, Upload as UploadIcon, Download, Calendar, Search, FilterX, HelpCircle, ChevronUp, ChevronDown } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, RefreshCw, Upload as UploadIcon, Download, Calendar, Search, FilterX, HelpCircle, ChevronUp, ChevronDown, Sparkles, Loader2, Info, Lock, History, TrendingUp } from "lucide-react";
 import { UploadZone } from "@/components/UploadZone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { subDays, startOfDay, endOfDay, isWithinInterval, format } from "date-fns";
 import ReactMarkdown from "react-markdown";
-import { Sparkles, Loader2 } from "lucide-react";
+import { BalanceCard } from "@/components/dashboard/BalanceCard";
 
 interface Transaction {
   Buchungsdatum: string;
@@ -78,6 +78,8 @@ export default function DashboardPage() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   // New States
+  const [accountBalance, setAccountBalance] = useState<{ value: number; label: string } | null>(null);
+  const [balanceHistory, setBalanceHistory] = useState<any[]>([]);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [selectedPrompts, setSelectedPrompts] = useState<string[]>([]);
@@ -85,11 +87,25 @@ export default function DashboardPage() {
   const [showSettings, setShowSettings] = useState(false);
   const { theme, setTheme } = useTheme();
 
-  const handleUploadSuccess = (data: { transactions: Transaction[] }) => {
+  const handleUploadSuccess = (data: {
+    transactions: Transaction[],
+    metadata?: { balance?: number; balance_label?: string },
+    balance_history?: any[]
+  }) => {
     setIsDemoMode(false); // Reset demo mode on real upload
     setTransactions(data.transactions);
     setShowUpload(false);
-    // ...
+
+    if (data.metadata?.balance !== undefined) {
+      setAccountBalance({
+        value: data.metadata.balance,
+        label: data.metadata.balance_label || "Kontostand"
+      });
+    }
+
+    if (data.balance_history) {
+      setBalanceHistory(data.balance_history);
+    }
 
     if (data.transactions.length > 0) {
       const dates = data.transactions.map(t => new Date(t.Buchungsdatum));
@@ -226,15 +242,12 @@ export default function DashboardPage() {
       if (!uploadRes.ok) throw new Error("Backend-Verarbeitung fehlgeschlagen");
 
       const uploadData = await uploadRes.json();
-      setIsDemoMode(true);
-      setTransactions(uploadData.transactions);
-      setShowUpload(false);
 
-      if (uploadData.transactions.length > 0) {
-        const dates = uploadData.transactions.map((t: Transaction) => new Date(t.Buchungsdatum));
-        setFromDate(new Date(Math.min(...dates.map((d: Date) => d.getTime()))));
-        setToDate(new Date(Math.max(...dates.map((d: Date) => d.getTime()))));
-      }
+      // Nutze die zentrale Erfolgs-Logik für Metadaten & Balance Ledger
+      handleUploadSuccess(uploadData);
+
+      // Demo-Modus State nachträglich setzen, da handleUploadSuccess ihn auf false setzt
+      setIsDemoMode(true);
     } catch (err: any) {
       console.error("Demo Mode Error:", err);
       alert(`Demo-Modus konnte nicht geladen werden: ${err.message || "Stelle sicher, dass das Backend läuft."}`);
@@ -465,6 +478,26 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="space-y-8 mt-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+          {accountBalance && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <BalanceCard
+                balance={accountBalance.value}
+                label={accountBalance.label}
+                history={balanceHistory}
+              />
+              <Card className="col-span-1 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 p-6 flex flex-col justify-center">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Sitzung Aktiv</span>
+                </div>
+                <h3 className="text-sm font-semibold mb-1">KI Architektur-Tipp</h3>
+                <p className="text-xs text-zinc-500 leading-relaxed">
+                  Ihre Sitzung ist aktiv. Alle Analysen finden verschlüsselt im RAM statt.
+                </p>
+              </Card>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard title="Einnahmen" value={formatEuro(stats.income)} icon={<ArrowUpRight size={20} className="text-emerald-500" />} />
             <StatCard title="Ausgaben" value={formatEuro(stats.expenses)} icon={<ArrowDownRight size={20} className="text-rose-500" />} />

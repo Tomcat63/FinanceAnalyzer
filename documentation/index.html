@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinanceAnalyzer - Technische Dokumentation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            securityLevel: 'loose',
+            fontFamily: 'Inter',
+            themeVariables: {
+                primaryColor: '#38bdf8',
+                primaryTextColor: '#f8fafc',
+                primaryBorderColor: '#334155',
+                lineColor: '#38bdf8',
+                secondaryColor: '#1e293b',
+                tertiaryColor: '#0f172a'
+            }
+        });
+    </script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #0b1120;
+            --sidebar-bg: #0b1120;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --border: #334155;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --code-bg: #0f172a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        nav {
+            width: 300px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            padding: 2.5rem 1.5rem;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-bottom: 3rem;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+        }
+
+        .nav-links {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .nav-links li {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: block;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            transform: translateX(4px);
+        }
+
+        .nav-links a.active {
+            background-color: var(--accent);
+            color: var(--bg-primary);
+            font-weight: 600;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin: 2rem 0 0.75rem 0.5rem;
+            letter-spacing: 0.1em;
+            display: block;
+            text-decoration: none;
+        }
+
+        .nav-section-title:hover {
+            color: var(--accent);
+        }
+
+        /* Main Content */
+        main {
+            margin-left: 300px;
+            padding: 4rem 6rem;
+            max-width: 1400px;
+            width: 100%;
+        }
+
+        section {
+            margin-bottom: 6rem;
+            scroll-margin-top: 5rem;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 2rem;
+            letter-spacing: -0.05em;
+            background: linear-gradient(135deg, #fff 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h2::before {
+            content: "";
+            width: 4px;
+            height: 1.5rem;
+            background-color: var(--accent);
+            border-radius: 2px;
+        }
+
+        h3 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin: 2.5rem 0 1rem;
+            color: var(--accent);
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 0.5rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background-color: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            color: var(--accent);
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .tech-card {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1.25rem;
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .tech-card h4 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+        }
+
+        /* Diagram Containers */
+        .diagram-container {
+            background-color: var(--card-bg);
+            padding: 3rem;
+            border-radius: 1.5rem;
+            border: 1px solid var(--border);
+            margin: 2.5rem 0;
+            overflow-x: auto;
+            text-align: center;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        .diagram-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        pre {
+            background-color: var(--code-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            margin: 2rem 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.95rem;
+            position: relative;
+        }
+
+        pre::before {
+            content: "CODE";
+            position: absolute;
+            top: 0;
+            right: 2rem;
+            background: var(--accent);
+            color: var(--bg-primary);
+            font-size: 0.65rem;
+            font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 0 0 4px 4px;
+        }
+
+        code {
+            color: var(--accent);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 2rem 0;
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 1.25rem;
+        }
+
+        th {
+            background-color: rgba(56, 189, 248, 0.05);
+            font-weight: 700;
+            color: var(--accent);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            background-color: transparent;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .footer {
+            margin-top: 8rem;
+            padding: 4rem 0;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .callout {
+            border-left: 4px solid var(--accent);
+            background-color: rgba(56, 189, 248, 0.05);
+            padding: 2rem;
+            margin: 3rem 0;
+            border-radius: 0 1rem 1rem 0;
+        }
+
+        .callout strong {
+            color: var(--accent);
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        @media (max-width: 1024px) {
+            main {
+                padding: 4rem 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                width: 100%;
+                height: auto;
+                position: relative;
+            }
+
+            main {
+                margin-left: 0;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="#top" class="logo">
+            <span>📊</span> FinanceAnalyzer
+        </a>
+
+        <a href="#architektur" class="nav-section-title">Dokumentation</a>
+        <ul class="nav-links">
+            <li><a href="#architektur">Architektur-Übersicht</a></li>
+            <li><a href="#datenfluss">Datenfluss</a></li>
+            <li><a href="#usecase">Use Case Diagramm</a></li>
+            <li><a href="#sequence">Sequence Diagramm</a></li>
+            <li><a href="#tech-stack">Technologie-Stack</a></li>
+        </ul>
+
+        <a href="#api" class="nav-section-title">API & Logik</a>
+        <ul class="nav-links">
+            <li><a href="#api">REST-API Endpunkte</a></li>
+            <li><a href="#csv-logik">CSV-Spezifikation</a></li>
+        </ul>
+
+        <a href="#infrastructure" class="nav-section-title">DevOps</a>
+        <ul class="nav-links">
+            <li><a href="#infrastructure">Infrastruktur & Ops</a></li>
+            <li><a href="#deployment">Deployment-Strategie</a></li>
+        </ul>
+    </nav>
+
+    <main id="top">
+        <section id="architektur">
+            <h1>Technische Dokumentation</h1>
+            <p>Willkommen zur technischen Dokumentation des <strong>FinanceAnalyzer</strong>-Projekts. Diese Anwendung
+                ermöglicht eine automatisierte Analyse von Banktransaktionen durch KI-gestützte Kategorisierung und
+                moderne Visualisierung.</p>
+
+            <h2>Architektur-Übersicht</h2>
+            <p>FinanceAnalyzer basiert auf einem klassischen Client-Server-Modell, das für Skalierbarkeit und klare
+                Separation of Concerns optimiert ist.</p>
+
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h4>Client (Frontend)</h4>
+                    <p>Next.js SPA für schnelle Interaktion. Nutzt <strong>React</strong> für die UI und
+                        <strong>Tremor</strong> für interaktive Finanz-Charts.
+                    </p>
+                    <div class="badge">Next.js 15</div>
+                    <div class="badge">Tailwind</div>
+                </div>
+                <div class="tech-card">
+                    <h4>Server (Backend)</h4>
+                    <p>Leistungsstarke <strong>FastAPI</strong> in Python. Übernimmt CSV-Parsing via Pandas und
+                        KI-Analyse via LLM-Integration.</p>
+                    <div class="badge">Python 3.11</div>
+                    <div class="badge">FastAPI</div>
+                </div>
+            </div>
+
+            <div class="callout">
+                <strong>💡 Hinweis:</strong> Das Backend fungiert im Produktionsmodus gleichzeitig als statischer
+                Fileserver für das gebaute Frontend, was das Deployment ("Monolith-Container") drastisch vereinfacht.
+            </div>
+        </section>
+
+        <section id="datenfluss">
+            <h2>Datenfluss</h2>
+            <p>Die Architektur folgt einem unidirektionalen Datenfluss für maximale Vorhersehbarkeit.</p>
+
+            <div class="diagram-container">
+                <div class="diagram-title">System-Datenfluss</div>
+                <div class="mermaid">
+                    graph LR
+                    CSV[DKB CSV Datei] -->|Upload| FE[Frontend UI]
+                    FE -->|REST POST| BE[FastAPI Backend]
+                    subgraph Processing
+                    BE -->|Parsing| P[Pandas Processor]
+                    P -->|Analysis| H[Heuristic Engine]
+                    H -->|Optional AI| AI[LLM / OpenRouter]
+                    end
+                    AI -->|JSON| Output[Kategorisierte Daten]
+                    H -->|JSON| Output
+                    Output -->|Response| FE
+                    FE -->|Visualize| Dashboard[Tremor Dashboard]
+                </div>
+            </div>
+        </section>
+
+        <section id="usecase">
+            <h2>UML Use Case</h2>
+            <p>Die funktionalen Anforderungen aus Sicht der verschiedenen Akteure.</p>
+
+            <div class="diagram-container">
+                <div class="diagram-title">System use cases</div>
+                <div class="mermaid">
+                    graph LR
+                    User((Benutzer))
+                    AI((AI Engine))
+
+                    subgraph System_Boundary [FinanceAnalyzer System]
+                    UC1([CSV hochladen])
+                    UC2([Finanz-Bericht einsehen])
+                    UC3([Fixkosten analysieren])
+                    UC4([KI-Chat Beratung])
+
+                    VAL([Daten-Validierung])
+                    CAT([Kategorisierung])
+                    end
+
+                    User --- UC1
+                    User --- UC2
+                    User --- UC3
+                    User --- UC4
+
+                    UC4 --- AI
+
+                    UC1 -.->|include| VAL
+                    UC1 -.->|include| CAT
+                </div>
+            </div>
+        </section>
+
+        <section id="sequence">
+            <h2>UML Sequence</h2>
+            <p>Detaillierter zeitlicher Ablauf einer Transaktions-Verarbeitung.</p>
+
+            <div class="diagram-container">
+                <div class="diagram-title">CSV Upload Sequence</div>
+                <div class="mermaid">
+                    sequenceDiagram
+                    participant U as Benutzer
+                    participant F as Frontend (Next.js)
+                    participant B as Backend (FastAPI)
+                    participant AI as AI Engine (Gemini)
+
+                    U->>F: Wählt DKB-CSV Datei
+                    F->>B: POST /upload (File-Stream)
+                    Note over B: Pandas Parsing & Cleaning
+                    B->>B: Pattern Matching (Heuristiken)
+                    B->>F: JSON Data (Transactions + Stats)
+                    F-->>U: Dashboard Rendering
+
+                    U->>F: Stellt Frage: "Wo spare ich?"
+                    F->>B: POST /api/chat (Context)
+                    B->>AI: Analyse-Anfrage (OpenRouter)
+                    AI-->>B: KI-Antwort (Markdown)
+                    B-->>F: Response
+                    F-->>U: Anzeige im Chat-Widget
+                </div>
+            </div>
+        </section>
+
+        <section id="tech-stack">
+            <h2>Technologie-Stack</h2>
+            <p>Die Wahl der Technologien fokussiert sich auf Entwicklungsgeschwindigkeit und Typ-Sicherheit.</p>
+
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h4>Modern Frontend</h4>
+                    <p><span class="badge">Next.js 15</span> <span class="badge">React 19</span> <span
+                            class="badge">TypeScript</span> <span class="badge">Zustand</span> <span
+                            class="badge">Recharts/Tremor</span></p>
+                </div>
+                <div class="tech-card">
+                    <h4>Robust Backend</h4>
+                    <p><span class="badge">Python 3.11</span> <span class="badge">FastAPI</span> <span
+                            class="badge">Pandas</span> <span class="badge">Pydantic</span> <span
+                            class="badge">Uvicorn</span></p>
+                </div>
+                <div class="tech-card">
+                    <h4>Cloud AI</h4>
+                    <p><span class="badge">OpenRouter</span> <span class="badge">Gemini 2.0 Flash</span> <span
+                            class="badge">Llama 3.3 70B</span></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="api">
+            <h2>REST-API Endpunkte</h2>
+            <p>Die API ist vollständig zustandslos (stateless) konzipiert.</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Methode</th>
+                        <th>Pfad</th>
+                        <th>Payload</th>
+                        <th>Beschreibung</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>POST</code></td>
+                        <td><code>/upload</code></td>
+                        <td><code>form-data</code></td>
+                        <td>Upload der Bank-CSV. Rückgabe: JSON Transactions.</td>
+                    </tr>
+                    <tr>
+                        <td><code>GET</code></td>
+                        <td><code>/api/demo-data</code></td>
+                        <td>-</td>
+                        <td>Lädt die Mock-CSV für Demonstrationszwecke.</td>
+                    </tr>
+                    <tr>
+                        <td><code>POST</code></td>
+                        <td><code>/api/chat</code></td>
+                        <td><code>JSON</code></td>
+                        <td>Übergibt Finanzdaten an das LLM für eine Textanalyse.</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>Fehlerstruktur</h3>
+            <pre><code>{
+  "error": "Could not find valid transaction header in CSV.",
+  "status": 400
+}</code></pre>
+        </section>
+
+        <section id="csv-logik">
+            <h2>CSV-Spezifikation</h2>
+            <p>Die Applikation nutzt <code>generate_mock_csv.py</code> als Datenmodell-Vorlage.</p>
+
+            <pre><code>headers = [
+    "Buchungsdatum", "Wertstellung", "Status", "Zahlungspflichtige*r",
+    "Zahlungsempfänger*in", "Verwendungszweck", "Umsatztyp", "IBAN",
+    "Betrag (€)", "Gläubiger-ID", "Mandatsreferenz", "Kundenreferenz"
+]</code></pre>
+
+            <div class="callout">
+                <strong>💡 Erweiterbarkeit:</strong> Durch das <code>column_mapping</code> im Backend lassen sich neue
+                Bankformate (z.B. Sparkasse) einfach hinzufügen, indem die Header gemapped werden.
+            </div>
+        </section>
+
+        <section id="infrastructure">
+            <h2>Infrastruktur & Ops</h2>
+
+            <div class="tech-card">
+                <h4>Docker Konzept</h4>
+                <p>Das Projekt nutzt ein <strong>Multi-Stage Build</strong>-Verfahren. Zuerst wird das Frontend gebaut
+                    (`npm run build`), die exportierten Dateien werden dann in das finale Python-Image kopiert.</p>
+            </div>
+
+            <h3>CI/CD & Git</h3>
+            <p>Branches werden via Feature-Branch-Modell gepflegt. Deployment erfolgt nahtlos auf Platformen wie
+                Railway.</p>
+        </section>
+
+        <section id="deployment">
+            <h2>Deployment-Strategie</h2>
+            <p>Der vollständige Stack in einem Image:</p>
+
+            <pre><code># Kurzfassung Dockerfile
+FROM node:20 AS builder
+RUN npm run build
+
+FROM python:3.11-slim
+COPY --from=builder /app/frontend/out ./frontend/out
+RUN pip install -r requirements.txt
+CMD ["uvicorn", "backend.main:app", "--port", "8080"]</code></pre>
+        </section>
+
+        <div class="footer">
+            &copy; 2025 FinanceAnalyzer | Senior Architecture & Lead Engineering
+        </div>
+    </main>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                if (targetId === '#top') {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    document.querySelector(targetId).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                }
+
+                // Update active state
+                document.querySelectorAll('.nav-links a, .nav-section-title').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Highlight active section on scroll
+        window.addEventListener('scroll', () => {
+            let current = '';
+            const sections = document.querySelectorAll('section');
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            document.querySelectorAll('.nav-links a').forEach(a => {
+                a.classList.remove('active');
+                if (a.getAttribute('href').includes(current)) {
+                    a.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
