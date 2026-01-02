@@ -24,12 +24,13 @@ class FixedCostDetector:
         }
 
         # Keyword mapping for categories
+        # CRITICAL: All keywords must be lowercase for matching to work!
         self.keywords = {
-            FixedCostCategory.WOHNEN: ["miete", "vermieter", "hausverwaltung", "hypothek", "wohngeld"],
+            FixedCostCategory.WOHNEN: ["lbs sued", "santander", "weg", "miete", "vermieter", "hausverwaltung", "hypothek", "wohngeld"],
             FixedCostCategory.VERSICHERUNGEN: ["versicherung", "huk", "allianz", "krankenkasse", "beitrag service", "dekra", "cosmos"],
-            FixedCostCategory.MEDIEN: ["netflix", "spotify", "disney", "prime", "sky", "telekom", "vodafone", "o2", "geZ", "rundfunk"],
-            FixedCostCategory.NEBENKOSTEN: ["strom", "gas", "wasser", "müll", "abfall", "stadtwerke", "eon", "vattenfall"],
-            FixedCostCategory.FINANZIERUNG: ["darlehen", "kredit", "leasing", "finanzierung", "rate"]
+            FixedCostCategory.MEDIEN: ["netflix", "spotify", "disney", "prime", "sky", "telekom", "vodafone", "o2", "gez", "rundfunk"],
+            FixedCostCategory.NEBENKOSTEN: ["strom", "gas", "wasser", "müll", "abfall", "stadtwerke", "eon", "vattenfall"],     
+            FixedCostCategory.FINANZIERUNG: ["darlehen", "kredit", "leasing", "finanzierung", "rate", "tilgung", "zinsen", "zins"]
         }
 
         # Exclusion list (e.g. Income should NEVER be a fixed cost expense)
@@ -53,11 +54,16 @@ class FixedCostDetector:
         reasons = []
 
         # Rule 1: Keyword Matching
+        print(f"DEBUG: Analyzing '{text}' for keywords...")
         for category, kws in self.keywords.items():
-            if any(kw in text for kw in kws):
-                detected_category = category
-                confidence += 0.4
-                reasons.append(f"Keyword-Treffer ({category.value})")
+            for kw in kws:
+                if kw in text:
+                    print(f"  -> MATCH: Found '{kw}' -> Category: {category.value}")
+                    detected_category = category
+                    confidence += 0.5
+                    reasons.append(f"Keyword-Treffer ({category.value}: '{kw}')")
+                    break
+            if detected_category != FixedCostCategory.NONE:
                 break
 
         if detected_category == FixedCostCategory.NONE:

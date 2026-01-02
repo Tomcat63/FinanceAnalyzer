@@ -58,7 +58,8 @@ backend/test_logic_standalone.py
 
 # --- Antigravity / Agentic logs ---
 .gemini/
-.agent/
+.agent/*
+!.agent/rules/
 task.md
 implementation_plan.md
 walkthrough.md

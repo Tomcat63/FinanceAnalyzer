@@ -5,8 +5,10 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TransactionProvider } from "@/context/TransactionContext";
 import { NavigationGuard } from "@/components/layout/NavigationGuard";
+import { PDFExportWrapper } from "@/components/layout/PDFExportWrapper";
 import { version } from "../../package.json";
 import { BuildInfoTag } from "@/components/layout/BuildInfoTag";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -34,23 +36,26 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           <TransactionProvider>
             <NavigationGuard>
-              <div className="flex h-screen relative overflow-hidden">
-                {/* Background elements for glassmorphism */}
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
+              <PDFExportWrapper>
+                <div className="flex h-screen relative overflow-hidden">
+                  {/* Background elements for glassmorphism */}
+                  <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 dark:bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
+                  <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/10 dark:bg-purple-500/5 rounded-full blur-[120px] pointer-events-none" />
 
-                {/* Sidebar */}
-                <Sidebar />
+                  {/* Sidebar */}
+                  <Sidebar />
 
-                {/* Main Content */}
-                <main className="flex-1 min-h-0 overflow-y-auto z-0 flex flex-col">
-                  <div className="flex-1 min-h-0">
-                    {children}
-                  </div>
+                  {/* Main Content */}
+                  <main className="flex-1 min-h-0 overflow-y-auto z-0 flex flex-col">
+                    <div className="flex-1 min-h-0">
+                      {children}
+                    </div>
 
-                  <BuildInfoTag />
-                </main>
-              </div>
+                    <BuildInfoTag />
+                  </main>
+                </div>
+                <Toaster richColors position="top-center" closeButton />
+              </PDFExportWrapper>
             </NavigationGuard>
           </TransactionProvider>
         </ThemeProvider>

@@ -6,14 +6,15 @@ from typing import List, Dict, Any
 
 CATEGORIES = {
     "Wohnen": ["Miete", "Nebenkosten", "Strom", "Gas", "Vermieter", "Hausverwaltung", "Grundsteuer", "Rundfunkbeitrag", "GEZ"],
-    "Essen": ["Edeka", "Rewe", "Aldi", "Lidl", "Netto", "Supermarkt", "Bäcker", "Penny", "Kaufland", "Alnatura", "Denns"],
+    "Essen": ["Lidl", "Kaufland", "Asia.", "Supermarkt", "Edeka", "Rewe", "Aldi", "Netto", "Bäcker", "Penny", "Alnatura", "Denns"],
     "Amazon": ["Amazon", "Audible", "Prime Video", "Marketplace"],
     "Shopping": ["Zalando", "H&M", "Zara", "Douglas", "Media Markt", "Saturn", "IKEA", "Action", "Mango", "Asos", "Best Secret"],
     "Tanken/Auto": ["Shell", "Aral", "Total", "Esso", "Jet", "Tankstelle", "KFZ", "Werkstatt", "Autohaus", "Versicherung"],
     "Reisen/Mobilität": ["DB Vertrieb", "Lufthansa", "Airbnb", "Booking.com", "Uber", "Taxi", "Flugticket", "Ryanair", "Eurowings", "VVS", "HVV", "BVG"],
-    "Freizeit": ["Kino", "Fitness", "Netflix", "Spotify", "Disney+", "Restaurant", "Bar", "McFit", "FitX", "Eversports", "Steam", "Nintendo"],
+    "Freizeit": ["KAMPFSPORTGEMEINSCHAFT", "Kino", "Fitness", "Netflix", "Spotify", "Disney+", "Restaurant", "Bar", "McFit", "FitX", "Eversports", "Steam", "Nintendo"],
     "Gehalt": ["Gehalt", "Lohn", "Arbeitgeber", "Besoldung", "Rente"],
     "Bank/Finanzen": ["Zinsen", "Dividende", "Depot", "Trade Republic", "Scalable", "DKB", "Sparkasse", "Volksbank"],
+    "Gesundheit": ["Arzt", "Pharmacie", "Apotheke", "Zahnarzt", "Chiropraktiker", "Krankenversicherung", "Medikamenten"]    
 }
 
 try:
@@ -86,6 +87,9 @@ def categorize_transaction(row: pd.Series) -> str:
     for category, keywords in CATEGORIES.items():
         if any(keyword.lower() in text for keyword in keywords):
             return category
+            
+    # DEBUG: Log uncategorized items to help refine categories
+    print(f"UNCATEGORIZED (Sonstiges): {row.get('Zahlungsempfänger', 'Unknown')} | {row.get('Verwendungszweck', 'Unknown')} | {row.get('Betrag', 0)}")
     return "Sonstiges"
 
 def calculate_50_30_20_metrics(df: pd.DataFrame) -> Dict[str, Any]:

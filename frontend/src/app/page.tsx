@@ -5,13 +5,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { BarChart, AreaChart } from "@tremor/react";
-import { ArrowUpRight, ArrowDownRight, RefreshCw, Upload as UploadIcon, Download, Calendar, Search, FilterX, HelpCircle, ChevronUp, ChevronDown, Sparkles, Loader2, Info, Lock, History, TrendingUp } from "lucide-react";
+import { ArrowUpRight, ArrowDownRight, RefreshCw, Download, Calendar, Search, FilterX, HelpCircle, ChevronUp, ChevronDown, Sparkles, Loader2, Info, Lock, History, TrendingUp, Play } from "lucide-react";
 import { UploadZone } from "@/components/UploadZone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { subDays, startOfDay, endOfDay, isWithinInterval, format } from "date-fns";
 import ReactMarkdown from "react-markdown";
 import { BalanceCard } from "@/components/dashboard/BalanceCard";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Transaction {
   Buchungsdatum: string;
@@ -362,8 +370,10 @@ export default function DashboardPage() {
           >
             <SettingsIcon size={18} className={showSettings ? "animate-spin" : ""} />
           </Button>
-          <Button variant="outline" onClick={exportToCSV} disabled={transactions.length === 0} className="rounded-xl"><Download size={18} className="mr-2" /> Export</Button>
-          <Button onClick={() => setShowUpload(true)} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-lg"><UploadIcon size={18} className="mr-2" /> CSV Upload</Button>
+          <Button variant="outline" onClick={exportToCSV} disabled={transactions.length === 0} className="rounded-xl"><Download size={18} className="mr-2" /> Daten Export</Button>
+          <Button onClick={() => setShowUpload(true)} variant="outline" className="border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 rounded-xl">
+            CSV Import
+          </Button>
         </div>
       </div>
 
@@ -476,12 +486,50 @@ export default function DashboardPage() {
       </div>
 
       {transactions.length === 0 ? (
-        <div className="py-20 flex flex-col items-center justify-center space-y-6">
-          <UploadZone
-            onUploadSuccess={handleUploadSuccess}
-            onDemoClick={handleDemoMode}
-            isDemoLoading={isDemoLoading}
-          />
+        <div className="py-20 flex flex-col items-center justify-center space-y-8 animate-in fade-in zoom-in duration-1000">
+          <div className="text-center space-y-4 max-w-xl">
+            <div className="inline-flex p-4 bg-blue-500/10 rounded-3xl mb-4">
+              <Sparkles size={48} className="text-blue-600 animate-pulse" />
+            </div>
+            <h2 className="text-4xl font-black tracking-tight">Echtheits-Simulation</h2>
+            <p className="text-zinc-500 font-medium text-lg leading-relaxed">
+              Willkommen beim modernsten Finanz-Berater. Starten Sie die Simulation mit realitätsnahen Daten, um die KI-gestützte Analyse und den PDF-Export zu testen.
+            </p>
+          </div>
+
+          <Button
+            onClick={handleDemoMode}
+            disabled={isDemoLoading}
+            size="lg"
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl shadow-2xl hover:scale-105 transition-all h-16 px-12 text-lg font-bold"
+          >
+            {isDemoLoading ? (
+              <><Loader2 className="mr-3 h-6 w-6 animate-spin" /> Simulation startet...</>
+            ) : (
+              <><Play size={24} className="mr-3" /> Simulation starten</>
+            )}
+          </Button>
+
+          <div className="flex items-center gap-6 pt-12 opacity-50 grayscale hover:grayscale-0 transition-all">
+            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-emerald-500 rounded-full" /> <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Live-Analyse</span></div>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-blue-500 rounded-full" /> <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Benchmark-Check</span></div>
+            <div className="flex items-center gap-2"><div className="w-2 h-2 bg-purple-500 rounded-full" /> <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">PDF-Reporting</span></div>
+          </div>
+          <Dialog open={showUpload} onOpenChange={setShowUpload}>
+            <DialogContent className="max-w-2xl bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl border-zinc-200 dark:border-zinc-800 rounded-3xl">
+              <DialogHeader>
+                <DialogTitle>Kontoauszug hochladen</DialogTitle>
+                <DialogDescription>
+                  Laden Sie Ihre CSV-Datei hoch, um die Analyse zu starten.
+                </DialogDescription>
+              </DialogHeader>
+              <UploadZone
+                onUploadSuccess={handleUploadSuccess}
+                onDemoClick={handleDemoMode}
+                isDemoLoading={isDemoLoading}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
       ) : (
         <div className="space-y-8 mt-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -666,6 +714,18 @@ export default function DashboardPage() {
           </Card>
         </div>
       )}
+      <Dialog open={showUpload} onOpenChange={setShowUpload}>
+        <DialogContent className="max-w-2xl bg-white/95 dark:bg-zinc-900/95 backdrop-blur-2xl border-zinc-200 dark:border-zinc-800 rounded-3xl">
+          <DialogHeader>
+            <DialogTitle>Kontoauszug hochladen</DialogTitle>
+          </DialogHeader>
+          <UploadZone
+            onUploadSuccess={handleUploadSuccess}
+            onDemoClick={handleDemoMode}
+            isDemoLoading={isDemoLoading}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

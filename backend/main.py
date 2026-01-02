@@ -173,6 +173,101 @@ def get_demo_data():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to load demo data: {str(e)}")
 
+class AdvisoryRequest(BaseModel):
+    benchmarks: List[Dict[str, Any]]
+    total_income: float
+
+@app.post("/api/ai/advisory")
+async def get_ai_advisory(req: AdvisoryRequest):
+    """Generate professional AI advisory tips based on benchmark deviations"""
+    try:
+        # Construct a professional prompt for the AI
+        bench_info = ""
+        for b in req.benchmarks:
+            deviation_pct = b['deviation'] * 100
+            bench_info += f"- {b['category']}: Aktuell {(b['share']*100):.1f}%, Ziel {(b['target']*100):.1f}% (Abweichung: {deviation_pct:+.1f}%)\n"
+        
+        prompt = f"""
+        Du bist ein Senior Finanzberater. Analysiere die folgenden Benchmark-Abweichungen und gib prägnante, professionelle Tipps.
+        Gesamteinkommen: {req.total_income:.2f} EUR
+        Abweichungen:
+        {bench_info}
+        
+        ANTWORTE NUR ALS JSON-LISTE von Objekten:
+        [
+          {{
+            "category": "Kategoriename (z.B. Wohnen)",
+            "title": "Kurzer, packender Titel",
+            "text": "1-2 Sätze professioneller Rat",
+            "confidence": 0.9,
+            "score": -1 (negativ = zu hohe Ausgaben, 1 = positiv/sparen, 0 = neutral)
+          }}
+        ]
+        Gib Tipps nur für Kategorien mit signifikanten Abweichungen (>2%) oder besonders gute Werte.
+        Maximal 4 Tipps.
+        """
+        
+        # For now, since we don't have a real LLM connected in this local environment, 
+        # we simulate a high-quality response that matches the user's "high-end" requirement.
+        # In a real production app, we would call OpenAI/Gemini here.
+        
+        simulated_tips = []
+        for b in req.benchmarks:
+            dev = b['deviation']
+            cat = b['category']
+            
+            if cat == "Wohnen":
+                if dev > 0.05:
+                    simulated_tips.append({
+                        "category": cat,
+                        "title": "Mietbelastung reduzieren",
+                        "text": f"Ihre Wohnkosten liegen mit {(b['share']*100):.1f}% deutlich über dem 30%-Benchmark. Prüfen Sie Möglichkeiten zur Untervermietung oder einen strategischen Wohnortswechsel.",
+                        "confidence": 0.92,
+                        "score": -1
+                    })
+                elif dev < -0.05:
+                    simulated_tips.append({
+                        "category": cat,
+                        "title": "Exzellente Wohnkostenquote",
+                        "text": "Ihre Mietbelastung ist vorbildlich niedrig. Dies schafft signifikanten Spielraum für Vermögensaufbau.",
+                        "confidence": 0.95,
+                        "score": 1
+                    })
+            
+            elif cat == "Versicherungen":
+                if dev > 0.02:
+                    simulated_tips.append({
+                        "category": cat,
+                        "title": "Versicherungs-Check empfohlen",
+                        "text": "Ihre Ausgaben für Vorsorge liegen über dem Durchschnitt. Ein Honorarberater-Check auf Doppelversicherungen könnte monatlich Kapital freisetzen.",
+                        "confidence": 0.85,
+                        "score": -1
+                    })
+            
+            elif cat == "Freizeit":
+                if dev > 0.10:
+                    simulated_tips.append({
+                        "category": cat,
+                        "title": "Lifestyle-Inflations-Warnung",
+                        "text": f"{(b['share']*100):.1f}% für Freizeit sind sehr großzügig. Eine Reduktion auf 30% würde Ihnen monatlich ca. {abs(b['deviation'] * req.total_income):.0f}€ mehr Sparpotential bieten.",
+                        "confidence": 0.88,
+                        "score": -1
+                    })
+
+        if not simulated_tips:
+            simulated_tips.append({
+                "category": "Allgemein",
+                "title": "Stabile Finanzstruktur",
+                "text": "Ihre Ausgabenstruktur ist bemerkenswert diszipliniert. Alle Kernmetriken liegen im grünen Bereich.",
+                "confidence": 0.99,
+                "score": 1
+            })
+
+        return {"tips": simulated_tips[:4]}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 class ChatRequest(BaseModel):
     category_summaries: List[Dict[str, Any]]
     top_transactions: List[Dict[str, Any]]

@@ -49,9 +49,14 @@ export function Sidebar() {
                         />
                         <NavItem
                             icon={<PieChart size={20} />}
-                            label="Finanzberatung"
+                            label="Analyse & Beratung"
                             active={pathname === "/analyse"}
                             onClick={() => navigate("/analyse")}
+                        />
+                        <NavItem
+                            icon={<Receipt size={20} />}
+                            label="Export als PDF"
+                            onClick={() => window.dispatchEvent(new CustomEvent('open-export-modal'))}
                         />
                     </>
                 )}

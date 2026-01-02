@@ -392,11 +392,12 @@
             <div class="tech-grid">
                 <div class="tech-card">
                     <h4>Client (Frontend)</h4>
-                    <p>Next.js SPA für schnelle Interaktion. Nutzt <strong>React</strong> für die UI und
-                        <strong>Tremor</strong> für interaktive Finanz-Charts.
+                    <p>Next.js SPA für schnelle Interaktion. Nutzt <strong>React</strong> für die UI,
+                        <strong>Tremor</strong> für Charts und <strong>jsPDF</strong> für Reports.
                     </p>
-                    <div class="badge">Next.js 15</div>
+                    <div class="badge">Next.js 16</div>
                     <div class="badge">Tailwind</div>
+                    <div class="badge">jsPDF</div>
                 </div>
                 <div class="tech-card">
                     <h4>Server (Backend)</h4>
@@ -426,12 +427,14 @@
                     subgraph Processing
                     BE -->|Parsing| P[Pandas Processor]
                     P -->|Analysis| H[Heuristic Engine]
+                    P -->|Validation| V[Schema Validator]
                     H -->|Optional AI| AI[LLM / OpenRouter]
                     end
                     AI -->|JSON| Output[Kategorisierte Daten]
                     H -->|JSON| Output
                     Output -->|Response| FE
                     FE -->|Visualize| Dashboard[Tremor Dashboard]
+                    FE -->|Generate| PDF["PDF Report (Client-Side)"]
                 </div>
             </div>
         </section>
@@ -483,19 +486,38 @@
                     participant B as Backend (FastAPI)
                     participant AI as AI Engine (Gemini)
 
+                    rect rgb(249, 249, 249)
+                    note right of U: Initialisierung
+                    U->>F: Startet App
+                    F->>B: GET /api/demo-data (Optional)
+                    end
+
+                    rect rgb(240, 248, 255)
+                    note right of U: CSV Upload Flow
                     U->>F: Wählt DKB-CSV Datei
                     F->>B: POST /upload (File-Stream)
                     Note over B: Pandas Parsing & Cleaning
                     B->>B: Pattern Matching (Heuristiken)
                     B->>F: JSON Data (Transactions + Stats)
                     F-->>U: Dashboard Rendering
+                    end
 
+                    rect rgb(255, 245, 235)
+                    note right of U: AI Analysis Flow
                     U->>F: Stellt Frage: "Wo spare ich?"
                     F->>B: POST /api/chat (Context)
                     B->>AI: Analyse-Anfrage (OpenRouter)
                     AI-->>B: KI-Antwort (Markdown)
                     B-->>F: Response
                     F-->>U: Anzeige im Chat-Widget
+                    end
+
+                    rect rgb(240, 255, 240)
+                    note right of U: Export Flow
+                    U->>F: Klick "PDF Export"
+                    Note over F: Generiert PDF im Browser (jsPDF)
+                    F-->>U: Download .pdf
+                    end
                 </div>
             </div>
         </section>
@@ -507,9 +529,9 @@
             <div class="tech-grid">
                 <div class="tech-card">
                     <h4>Modern Frontend</h4>
-                    <p><span class="badge">Next.js 15</span> <span class="badge">React 19</span> <span
+                    <p><span class="badge">Next.js 16</span> <span class="badge">React 19</span> <span
                             class="badge">TypeScript</span> <span class="badge">Zustand</span> <span
-                            class="badge">Recharts/Tremor</span></p>
+                            class="badge">Tremor</span> <span class="badge">jsPDF</span></p>
                 </div>
                 <div class="tech-card">
                     <h4>Robust Backend</h4>

@@ -35,7 +35,7 @@ const TransactionContext = createContext<TransactionContextType | undefined>(und
 export function TransactionProvider({ children }: { children: ReactNode }) {
     const [status, setStatus] = useState<TransactionStatus>('IDLE');
     const [transactions, setTransactions] = useState<Transaction[]>([]);
-    const [showUpload, setShowUpload] = useState(true);
+    const [showUpload, setShowUpload] = useState(false);
     const [accountBalance, setAccountBalance] = useState<{ value: number; label: string } | null>(null);
     const [balanceHistory, setBalanceHistory] = useState<any[]>([]);
     const [isDemoMode, setIsDemoMode] = useState(false);
@@ -43,7 +43,7 @@ export function TransactionProvider({ children }: { children: ReactNode }) {
     const clearAll = () => {
         setStatus('IDLE');
         setTransactions([]);
-        setShowUpload(true);
+        setShowUpload(false);
         setAccountBalance(null);
         setBalanceHistory([]);
         setIsDemoMode(false);
