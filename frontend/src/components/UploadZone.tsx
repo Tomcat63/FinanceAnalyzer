@@ -14,10 +14,11 @@ interface UploadZoneProps {
     onUploadSuccess: (data: any) => void;
     onDemoClick: () => void;
     isDemoLoading?: boolean;
+    initialFile?: File | null;
 }
 
-export function UploadZone({ onUploadSuccess, onDemoClick, isDemoLoading = false }: UploadZoneProps) {
-    const [file, setFile] = useState<File | null>(null);
+export function UploadZone({ onUploadSuccess, onDemoClick, isDemoLoading = false, initialFile = null }: UploadZoneProps) {
+    const [file, setFile] = useState<File | null>(initialFile);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -121,7 +122,7 @@ export function UploadZone({ onUploadSuccess, onDemoClick, isDemoLoading = false
                 )}
 
                 {error && (
-                    <div className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-600 rounded-lg text-sm flex items-center gap-2">
+                    <div data-testid="error-message" className="mt-4 p-3 bg-rose-500/10 border border-rose-500/20 text-rose-600 rounded-lg text-sm flex items-center gap-2">
                         <X size={16} /> {error}
                     </div>
                 )}
@@ -130,6 +131,7 @@ export function UploadZone({ onUploadSuccess, onDemoClick, isDemoLoading = false
             {file && (
                 <div className="mt-6 flex justify-center">
                     <Button
+                        data-testid="submit-button"
                         onClick={handleUpload}
                         disabled={uploading}
                         className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-6 rounded-xl text-lg font-semibold shadow-lg shadow-blue-500/20 transition-all hover:scale-105"

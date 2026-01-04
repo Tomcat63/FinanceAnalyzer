@@ -4,6 +4,8 @@
 .env.test.local
 .env.production.local
 __pycache__/
+.pytest_cache/
+logs/
 *.csv
 !backend/test_data_mock.csv
 
