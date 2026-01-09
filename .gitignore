@@ -21,6 +21,7 @@ frontend/yarn-error.log*
 frontend/.turbo/
 
 # --- Python / Backend ---
+backend/node_modules/
 backend/__pycache__/
 backend/*.py[cod]
 backend/*$py.class
