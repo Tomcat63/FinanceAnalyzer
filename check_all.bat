@@ -13,6 +13,14 @@ rem Backend Tests
 echo [1/3] Backend-Tests laufen...
 cd backend
 set PYTHONPATH=%PYTHONPATH%;..
+
+rem Check if Backend dependencies are installed
+python -c "import uvicorn" >nul 2>nul
+if %ERRORLEVEL% neq 0 (
+    echo [WARN] Backend-Dependencies fehlen. Starte pip install...
+    pip install -r requirements.txt
+)
+
 python -m pytest --junitxml=../logs/backend-results.xml
 set BACKEND_EXIT=%ERRORLEVEL%
 if %BACKEND_EXIT% neq 0 (
@@ -71,5 +79,10 @@ if /i "!COMMIT_ANS!"=="y" (
 )
 
 echo Check complete.
+echo.
+set /p START_ANS="Moechtest du die App jetzt starten? (y/n): "
+if /i "!START_ANS!"=="y" (
+    call start_app.bat
+)
 pause
 
